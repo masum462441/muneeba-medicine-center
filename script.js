@@ -1,38 +1,7 @@
 "use strict";
 
-if ("scrollRestoration" in history) {
-    history.scrollRestoration = "manual";
-}
 
-function resetPagePosition() {
-    const cleanURL =
-        window.location.pathname +
-        window.location.search;
-
-    history.replaceState(
-        null,
-        document.title,
-        cleanURL
-    );
-
-    window.scrollTo(0, 0);
-
-    document.documentElement.scrollTop = 0;
-    document.body.scrollTop = 0;
-}
-
-resetPagePosition();
-
-document.addEventListener(
-    "DOMContentLoaded",
-    resetPagePosition
-);
-
-window.addEventListener(
-    "pageshow",
-    resetPagePosition
-);
-
+/* Elements */
 
 const siteHeader =
     document.getElementById("siteHeader");
@@ -109,7 +78,10 @@ const currentYear =
     document.getElementById("currentYear");
 
 
+/* Header */
+
 function updateHeader() {
+
     if (!siteHeader) {
         return;
     }
@@ -118,6 +90,7 @@ function updateHeader() {
         "scrolled",
         window.scrollY > 25
     );
+
 }
 
 window.addEventListener(
@@ -129,7 +102,10 @@ window.addEventListener(
 updateHeader();
 
 
+/* Mobile Menu */
+
 function closeMenu() {
+
     if (!menuButton || !navMenu) {
         return;
     }
@@ -141,12 +117,16 @@ function closeMenu() {
         "aria-expanded",
         "false"
     );
+
 }
 
+
 if (menuButton && navMenu) {
+
     menuButton.addEventListener(
         "click",
         () => {
+
             const isOpen =
                 navMenu.classList.toggle(
                     "active"
@@ -161,13 +141,17 @@ if (menuButton && navMenu) {
                 "aria-expanded",
                 String(isOpen)
             );
+
         }
     );
+
 }
+
 
 document.addEventListener(
     "click",
     (event) => {
+
         if (!menuButton || !navMenu) {
             return;
         }
@@ -175,35 +159,49 @@ document.addEventListener(
         const clickedInsideMenu =
             navMenu.contains(event.target);
 
-        const clickedButton =
+        const clickedMenuButton =
             menuButton.contains(event.target);
 
-        if (!clickedInsideMenu && !clickedButton) {
+        if (
+            !clickedInsideMenu &&
+            !clickedMenuButton
+        ) {
             closeMenu();
         }
+
     }
 );
+
 
 window.addEventListener(
     "resize",
     () => {
+
         if (window.innerWidth > 930) {
             closeMenu();
         }
+
     }
 );
 
 
+/* Smooth Scroll */
+
 document
     .querySelectorAll('a[href^="#"]')
     .forEach((link) => {
+
         link.addEventListener(
             "click",
             (event) => {
+
                 const selector =
                     link.getAttribute("href");
 
-                if (!selector || selector === "#") {
+                if (
+                    !selector ||
+                    selector === "#"
+                ) {
                     return;
                 }
 
@@ -217,6 +215,7 @@ document
                 }
 
                 event.preventDefault();
+
                 closeMenu();
 
                 const headerHeight =
@@ -232,21 +231,29 @@ document
                     headerHeight;
 
                 window.scrollTo({
+
                     top: targetTop,
                     behavior: "smooth"
+
                 });
+
             }
         );
+
     });
 
 
+/* Active Navigation */
+
 function updateActiveNavigation() {
+
     const currentPosition =
         window.scrollY + 170;
 
     let activeSection = "home";
 
     sections.forEach((section) => {
+
         const sectionTop =
             section.offsetTop;
 
@@ -260,15 +267,22 @@ function updateActiveNavigation() {
         ) {
             activeSection = section.id;
         }
+
     });
 
     navLinks.forEach((link) => {
+
         link.classList.toggle(
+
             "active",
+
             link.getAttribute("href") ===
                 `#${activeSection}`
+
         );
+
     });
+
 }
 
 window.addEventListener(
@@ -280,11 +294,17 @@ window.addEventListener(
 updateActiveNavigation();
 
 
+/* Reveal Animation */
+
 if ("IntersectionObserver" in window) {
+
     const revealObserver =
         new IntersectionObserver(
+
             (entries, observer) => {
+
                 entries.forEach((entry) => {
+
                     if (!entry.isIntersecting) {
                         return;
                     }
@@ -296,26 +316,40 @@ if ("IntersectionObserver" in window) {
                     observer.unobserve(
                         entry.target
                     );
+
                 });
+
             },
+
             {
                 threshold: 0.12,
                 rootMargin:
                     "0px 0px -30px 0px"
             }
+
         );
 
     revealItems.forEach((item) => {
+
         revealObserver.observe(item);
+
     });
+
 } else {
+
     revealItems.forEach((item) => {
+
         item.classList.add("visible");
+
     });
+
 }
 
 
+/* 4500 Counter Animation */
+
 function animateCounter(element) {
+
     if (
         !element ||
         element.dataset.started === "true"
@@ -333,9 +367,12 @@ function animateCounter(element) {
     element.dataset.started = "true";
 
     const duration = 2300;
-    const startedAt = performance.now();
+
+    const startedAt =
+        performance.now();
 
     function updateCounter(currentTime) {
+
         const elapsed =
             currentTime - startedAt;
 
@@ -345,48 +382,59 @@ function animateCounter(element) {
                 1
             );
 
-        const eased =
+        const easedProgress =
             1 -
             Math.pow(
                 1 - progress,
                 4
             );
 
-        const value =
+        const currentValue =
             Math.floor(
-                target * eased
+                target * easedProgress
             );
 
         element.textContent =
             new Intl.NumberFormat(
                 "en-US"
-            ).format(value);
+            ).format(currentValue);
 
         if (progress < 1) {
+
             requestAnimationFrame(
                 updateCounter
             );
+
         } else {
+
             element.textContent =
                 new Intl.NumberFormat(
                     "en-US"
                 ).format(target);
+
         }
+
     }
 
     requestAnimationFrame(
         updateCounter
     );
+
 }
+
 
 if (
     animatedCounter &&
     "IntersectionObserver" in window
 ) {
+
     const counterObserver =
         new IntersectionObserver(
+
             (entries, observer) => {
+
                 entries.forEach((entry) => {
+
                     if (!entry.isIntersecting) {
                         return;
                     }
@@ -398,32 +446,45 @@ if (
                     observer.unobserve(
                         entry.target
                     );
+
                 });
+
             },
+
             {
-                threshold: 0.4
+                threshold: 0.45
             }
+
         );
 
     counterObserver.observe(
         animatedCounter
     );
+
 } else {
+
     animateCounter(
         animatedCounter
     );
+
 }
 
+
+/* Certificate Slider */
 
 const sliderGap = 22;
 
 let certificatesPerView = 3;
+
 let currentCertificatePage = 0;
+
 let totalCertificatePages = 1;
+
 let sliderTimer = null;
 
 
 function getCertificatesPerView() {
+
     if (window.innerWidth <= 700) {
         return 1;
     }
@@ -433,10 +494,12 @@ function getCertificatesPerView() {
     }
 
     return 3;
+
 }
 
 
 function prepareCertificateSlider() {
+
     if (
         !certificateViewport ||
         certificateSlides.length === 0
@@ -450,23 +513,25 @@ function prepareCertificateSlider() {
     const availableWidth =
         certificateViewport.clientWidth;
 
-    const gapWidth =
+    const totalGapWidth =
         sliderGap *
         (certificatesPerView - 1);
 
     const slideWidth =
         (
             availableWidth -
-            gapWidth
+            totalGapWidth
         ) /
         certificatesPerView;
 
     certificateSlides.forEach((slide) => {
+
         slide.style.width =
             `${slideWidth}px`;
 
         slide.style.flexBasis =
             `${slideWidth}px`;
+
     });
 
     totalCertificatePages =
@@ -480,17 +545,26 @@ function prepareCertificateSlider() {
     createSliderDots();
 
     requestAnimationFrame(() => {
+
         certificateViewport.scrollLeft = 0;
+
         updateSliderControls();
+
     });
+
 }
 
 
-function getPagePosition(page) {
+function getCertificatePagePosition(page) {
+
     const targetIndex =
         Math.min(
-            page * certificatesPerView,
+
+            page *
+            certificatesPerView,
+
             certificateSlides.length - 1
+
         );
 
     const targetSlide =
@@ -507,6 +581,7 @@ function getPagePosition(page) {
         targetSlide.offsetLeft -
         firstSlide.offsetLeft
     );
+
 }
 
 
@@ -514,22 +589,30 @@ function moveToCertificatePage(
     page,
     smooth = true
 ) {
+
     if (!certificateViewport) {
         return;
     }
 
     currentCertificatePage =
         Math.max(
+
             0,
+
             Math.min(
+
                 page,
+
                 totalCertificatePages - 1
+
             )
+
         );
 
     certificateViewport.scrollTo({
+
         left:
-            getPagePosition(
+            getCertificatePagePosition(
                 currentCertificatePage
             ),
 
@@ -537,13 +620,16 @@ function moveToCertificatePage(
             smooth
                 ? "smooth"
                 : "auto"
+
     });
 
     updateSliderControls();
+
 }
 
 
 function createSliderDots() {
+
     if (!sliderDots) {
         return;
     }
@@ -555,47 +641,62 @@ function createSliderDots() {
         index < totalCertificatePages;
         index += 1
     ) {
+
         const dot =
             document.createElement(
                 "button"
             );
 
         dot.type = "button";
-        dot.className = "slider-dot";
+
+        dot.className =
+            "slider-dot";
 
         dot.setAttribute(
+
             "aria-label",
+
             `Certificate page ${index + 1}`
+
         );
 
         dot.addEventListener(
             "click",
             () => {
+
                 moveToCertificatePage(
                     index
                 );
 
                 restartSlider();
+
             }
         );
 
         sliderDots.appendChild(dot);
+
     }
 
     updateSliderControls();
+
 }
 
 
 function updateSliderControls() {
+
     if (previousCertificate) {
+
         previousCertificate.disabled =
             currentCertificatePage === 0;
+
     }
 
     if (nextCertificate) {
+
         nextCertificate.disabled =
             currentCertificatePage >=
             totalCertificatePages - 1;
+
     }
 
     if (!sliderDots) {
@@ -605,58 +706,82 @@ function updateSliderControls() {
     sliderDots
         .querySelectorAll(".slider-dot")
         .forEach((dot, index) => {
+
             dot.classList.toggle(
+
                 "active",
+
                 index ===
                     currentCertificatePage
+
             );
+
         });
+
 }
 
 
 function detectCurrentSliderPage() {
+
     if (!certificateViewport) {
         return;
     }
 
     let nearestPage = 0;
-    let nearestDistance = Infinity;
+
+    let nearestDistance =
+        Infinity;
 
     for (
         let page = 0;
         page < totalCertificatePages;
         page += 1
     ) {
+
         const distance =
             Math.abs(
+
                 certificateViewport.scrollLeft -
-                getPagePosition(page)
+
+                getCertificatePagePosition(
+                    page
+                )
+
             );
 
         if (distance < nearestDistance) {
+
             nearestDistance = distance;
+
             nearestPage = page;
+
         }
+
     }
 
     currentCertificatePage =
         nearestPage;
 
     updateSliderControls();
+
 }
 
 
 function stopSlider() {
+
     if (!sliderTimer) {
         return;
     }
 
     clearInterval(sliderTimer);
+
     sliderTimer = null;
+
 }
 
 
 function startSlider() {
+
     stopSlider();
 
     if (totalCertificatePages <= 1) {
@@ -665,114 +790,171 @@ function startSlider() {
 
     sliderTimer =
         setInterval(
+
             () => {
+
                 const nextPage =
+
                     currentCertificatePage >=
                     totalCertificatePages - 1
+
                         ? 0
+
                         : currentCertificatePage + 1;
 
                 moveToCertificatePage(
                     nextPage
                 );
+
             },
+
             5500
+
         );
+
 }
 
 
 function restartSlider() {
+
     stopSlider();
+
     startSlider();
+
 }
 
 
 previousCertificate?.addEventListener(
+
     "click",
+
     () => {
+
         moveToCertificatePage(
             currentCertificatePage - 1
         );
 
         restartSlider();
+
     }
+
 );
 
 
 nextCertificate?.addEventListener(
+
     "click",
+
     () => {
+
         moveToCertificatePage(
             currentCertificatePage + 1
         );
 
         restartSlider();
+
     }
+
 );
 
 
 certificateViewport?.addEventListener(
+
     "scroll",
+
     detectCurrentSliderPage,
+
     { passive: true }
+
 );
 
 
 certificateViewport?.addEventListener(
+
     "mouseenter",
+
     stopSlider
+
 );
 
 
 certificateViewport?.addEventListener(
+
     "mouseleave",
+
     startSlider
+
 );
 
 
 certificateViewport?.addEventListener(
+
     "touchstart",
+
     stopSlider,
+
     { passive: true }
+
 );
 
 
 certificateViewport?.addEventListener(
+
     "touchend",
+
     startSlider,
+
     { passive: true }
+
 );
 
 
 window.addEventListener(
+
     "resize",
+
     () => {
+
         clearTimeout(
-            window.sliderResizeTimer
+            window.certificateResizeTimer
         );
 
-        window.sliderResizeTimer =
+        window.certificateResizeTimer =
             setTimeout(
+
                 prepareCertificateSlider,
+
                 160
+
             );
+
     }
+
 );
 
 
 window.addEventListener(
+
     "load",
+
     () => {
+
         prepareCertificateSlider();
+
         startSlider();
+
     }
+
 );
 
 
+/* Certificate Modal */
+
 function openCertificate(
-    source,
-    title
+    imageSource,
+    certificateTitle
 ) {
+
     if (
         !certificateModal ||
         !modalImage ||
@@ -783,9 +965,14 @@ function openCertificate(
 
     stopSlider();
 
-    modalImage.src = source;
-    modalImage.alt = title;
-    modalTitle.textContent = title;
+    modalImage.src =
+        imageSource;
+
+    modalImage.alt =
+        certificateTitle;
+
+    modalTitle.textContent =
+        certificateTitle;
 
     certificateModal.classList.add(
         "active"
@@ -799,10 +986,12 @@ function openCertificate(
     document.body.classList.add(
         "modal-open"
     );
+
 }
 
 
 function closeCertificate() {
+
     if (!certificateModal) {
         return;
     }
@@ -821,69 +1010,115 @@ function closeCertificate() {
     );
 
     setTimeout(() => {
+
         if (modalImage) {
+
             modalImage.src = "";
+
             modalImage.alt = "";
+
         }
 
         if (modalTitle) {
+
             modalTitle.textContent = "";
+
         }
+
     }, 300);
 
     startSlider();
+
 }
 
 
 certificateCards.forEach((card) => {
+
     card.addEventListener(
+
         "click",
+
         () => {
+
             openCertificate(
+
                 card.dataset.image,
+
                 card.dataset.title ||
                     "Certificate"
+
             );
+
         }
+
     );
+
 });
 
 
 modalClose?.addEventListener(
+
     "click",
+
     closeCertificate
+
 );
 
 
 certificateModal?.addEventListener(
+
     "click",
+
     (event) => {
-        if (event.target === certificateModal) {
+
+        if (
+            event.target ===
+            certificateModal
+        ) {
+
             closeCertificate();
+
         }
+
     }
+
 );
 
 
 document.addEventListener(
+
     "keydown",
+
     (event) => {
+
         if (
             event.key === "Escape" &&
-            certificateModal?.classList.contains(
-                "active"
-            )
+
+            certificateModal
+                ?.classList.contains(
+                    "active"
+                )
         ) {
+
             closeCertificate();
+
         }
+
     }
+
 );
 
 
+/* Form Helpers */
+
 function cleanText(value) {
+
     return String(value || "")
+
         .trim()
+
         .replace(/\s+/g, " ");
+
 }
 
 
@@ -891,66 +1126,98 @@ function showFormStatus(
     message,
     type
 ) {
+
     if (!formStatus) {
         return;
     }
 
-    formStatus.textContent = message;
+    formStatus.textContent =
+        message;
+
     formStatus.className =
         `form-status ${type}`;
 
     setTimeout(() => {
+
         formStatus.textContent = "";
+
         formStatus.className =
             "form-status";
+
     }, 5000);
+
 }
 
 
-function isValidPhone(phone) {
+function isValidPhone(phoneNumber) {
+
     const cleanedPhone =
-        phone.replace(
+        phoneNumber.replace(
+
             /[\s\-()]/g,
+
             ""
+
         );
 
-    return /^(?:\+?88)?01[3-9]\d{8}$/.test(
-        cleanedPhone
-    );
+    return /^(?:\+?88)?01[3-9]\d{8}$/
+        .test(cleanedPhone);
+
 }
 
 
+/* WhatsApp Form */
+
 appointmentForm?.addEventListener(
+
     "submit",
+
     (event) => {
+
         event.preventDefault();
 
         const patientName =
             cleanText(
-                document.getElementById(
-                    "patientName"
-                )?.value
+
+                document
+                    .getElementById(
+                        "patientName"
+                    )
+                    ?.value
+
             );
 
         const patientPhone =
             cleanText(
-                document.getElementById(
-                    "patientPhone"
-                )?.value
+
+                document
+                    .getElementById(
+                        "patientPhone"
+                    )
+                    ?.value
+
             );
 
         const serviceName =
             cleanText(
-                document.getElementById(
-                    "serviceName"
-                )?.value
+
+                document
+                    .getElementById(
+                        "serviceName"
+                    )
+                    ?.value
+
             );
 
         const patientMessage =
             cleanText(
-                document.getElementById(
-                    "patientMessage"
-                )?.value
+
+                document
+                    .getElementById(
+                        "patientMessage"
+                    )
+                    ?.value
+
             );
 
         if (
@@ -958,84 +1225,138 @@ appointmentForm?.addEventListener(
             !patientPhone ||
             !serviceName
         ) {
+
             showFormStatus(
+
                 "Please complete all required fields.",
+
                 "error"
+
             );
 
             return;
+
         }
 
         if (!isValidPhone(patientPhone)) {
+
             showFormStatus(
+
                 "Please enter a valid Bangladeshi mobile number.",
+
                 "error"
+
             );
 
             return;
+
         }
 
-        const message = [
+        const whatsappMessage = [
+
             "Assalamu Alaikum,",
+
             "",
+
             "I would like to contact Muneeba Medicine Center.",
+
             "",
+
             `Name: ${patientName}`,
+
             `Phone: ${patientPhone}`,
+
             `Service: ${serviceName}`,
+
             patientMessage
+
                 ? `Message: ${patientMessage}`
+
                 : "Message: Not provided",
+
             "",
+
             "Please confirm the available time."
+
         ].join("\n");
 
         const whatsappURL =
+
             "https://wa.me/8801988195342" +
-            `?text=${encodeURIComponent(message)}`;
+
+            `?text=${encodeURIComponent(
+                whatsappMessage
+            )}`;
 
         showFormStatus(
+
             "Opening WhatsApp...",
+
             "success"
+
         );
 
         setTimeout(() => {
+
             window.open(
+
                 whatsappURL,
+
                 "_blank",
+
                 "noopener,noreferrer"
+
             );
+
         }, 300);
+
     }
+
 );
 
 
+/* Current Year */
+
 if (currentYear) {
+
     currentYear.textContent =
         new Date().getFullYear();
+
 }
 
+
+/* External Link Security */
 
 document
     .querySelectorAll(
         'a[target="_blank"]'
     )
     .forEach((link) => {
+
         const relValues =
             new Set(
+
                 (
                     link.getAttribute("rel") ||
                     ""
                 )
+
                     .split(/\s+/)
+
                     .filter(Boolean)
+
             );
 
         relValues.add("noopener");
+
         relValues.add("noreferrer");
 
         link.setAttribute(
+
             "rel",
+
             [...relValues].join(" ")
+
         );
+
     });
